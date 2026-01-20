@@ -4,6 +4,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\RoleManagementController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\CourseController;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -24,7 +25,9 @@ Route::middleware(['auth:sanctum', 'admin.check'])->group(function () {
     Route::post('/roles/revoke', [RoleManagementController::class, 'revoke']);
     Route::post('/roles/update', [RoleManagementController::class, 'update']);
 
-    
+    Route::apiResource('courses',CourseController::class);
+
+    Route::post('courses/assign-instructor', [CourseController::class, 'assign']);
 
 });
 
