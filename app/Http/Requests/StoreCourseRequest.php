@@ -33,7 +33,7 @@ class StoreCourseRequest extends FormRequest
             ],
             'description'   => 'required|string|min:20',
             'price'         => 'required|numeric|min:0',
-
+            'registration_deadline' => 'required|date|after:now',
 
             'images' => 'nullable|array',
             'images.*' => 'image|mimes:jpeg,png,jpg|max:2048',
@@ -67,13 +67,17 @@ class StoreCourseRequest extends FormRequest
             'price.numeric'          => 'The price must be a valid number.',
             'price.min'              => 'Price cannot be a negative value.',
 
-            
+            'registration_deadline.required' => 'The registration deadline date is required.',
+            'registration_deadline.date'     => 'Please enter a valid date format.',
+            'registration_deadline.after'    => 'The deadline must be a future date and time.',
+
+
             'images.array' => 'Images must be uploaded as a list.',
             'images.*.image' => 'One or more files in the images field are not valid images.',
             'images.*.mimes' => 'Only JPEG, PNG, and JPG formats are allowed for images.',
             'images.*.max' => 'Each image must not exceed 2MB.',
 
-            
+
             'pdfs.array' => 'PDFs must be uploaded as a list.',
             'pdfs.*.file' => 'One or more items in the PDFs field are not valid files.',
             'pdfs.*.mimes' => 'The files must be in PDF format only.',

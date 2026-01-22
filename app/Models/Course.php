@@ -16,22 +16,43 @@ class Course extends Model implements HasMedia
         'instructor_id',
         'price',
         'type',
-        'capacity'
+        'capacity',
+        'registration_deadline',
+        'is_active'
     ];
 
+    protected $casts = [
+        'registration_deadline' => 'datetime',
+        'is_active' => 'boolean',
+    ];
 
 
     public function registerMediaCollections(): void
     {
-        // مجموعة للصور - تحذف القديم إذا أردت صورة واحدة فقط (حسب منطق مشروعك)
+
         $this->addMediaCollection('course_images');
 
-        // مجموعة لملفات الـ PDF
+
         $this->addMediaCollection('course_pdfs');
     }
 
     public function instructor()
     {
         return $this->belongsTo(User::class, 'instructor_id');
+    }
+
+
+    protected static function booted()
+    {
+        static::retrieved(function ($course) {
+
+            if ($course->is_active && $course->registration_deadline && $course->registration_deadline->isPast()) {
+
+
+                $course->is_active = false;
+
+                $course->save();
+            }
+        });
     }
 }

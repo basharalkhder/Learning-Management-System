@@ -18,6 +18,8 @@ return new class extends Migration
             $table->decimal('price', 8, 2)->default(0);
             $table->enum('type', ['online', 'onsite'])->default('online');
             $table->integer('capacity')->nullable();
+            $table->timestamp('registration_deadline')->nullable();
+            $table->boolean('is_active')->default(true);
             $table->foreignId('instructor_id')->nullable()->constrained('users')->onDelete('set null');
             $table->timestamps();
         });

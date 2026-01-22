@@ -37,6 +37,8 @@ class UpdateCourseRequest extends FormRequest
                 'min:1'
             ],
             'price'         => 'sometimes|required|numeric|min:0',
+
+            'registration_deadline' => 'sometimes|required|date|after:now',
             
 
             'images'      => 'sometimes|nullable|array',

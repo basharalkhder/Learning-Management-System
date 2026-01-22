@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\Course;
 use App\Models\User;
+use Carbon\Carbon;
 use Exception;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 
@@ -72,6 +73,8 @@ class CourseService
     public function createCourse(array $data)
     {
         try {
+            $data['is_active'] = true;
+
             $course = Course::create($data);
 
             if (!empty($data['images'])) {
@@ -92,14 +95,21 @@ class CourseService
     {
 
         $course = $this->getCourseById($id);
+
+        if (isset($data['registration_deadline'])) {
+            $newDeadline =Carbon::parse($data['registration_deadline']);
+            if ($newDeadline->isFuture()) {
+                $data['is_active'] = true;
+            }
+        }
         $course->update($data);
 
-        
+
         if (isset($data['images']) && is_array($data['images'])) {
             $this->mediaService->uploadMultipleMedia($course, $data['images'], 'course_images');
         }
 
-        
+
         if (isset($data['pdfs']) && is_array($data['pdfs'])) {
             $this->mediaService->uploadMultipleMedia($course, $data['pdfs'], 'course_pdfs');
         }
