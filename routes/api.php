@@ -29,6 +29,8 @@ Route::middleware(['auth:sanctum', 'admin.check'])->group(function () {
 
     Route::post('courses/assign-instructor', [CourseController::class, 'assign']);
 
+    Route::delete('/courses/{courseId}/media/{mediaId}', [CourseController::class, 'destroyMedia']);
+
 });
 
 // Test

@@ -6,6 +6,7 @@ use App\Models\Course;
 use Illuminate\Http\Request;
 use App\Http\Requests\StoreCourseRequest;
 use App\Services\CourseService;
+use App\Services\MediaService;
 use App\Http\Resources\CourseResource;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use App\Http\Requests\UpdateCourseRequest;
@@ -15,11 +16,15 @@ use App\Http\Requests\AssignInstructorRequest;
 class CourseController extends Controller
 {
     protected $courseService;
+    protected $mediaService;
 
-    public function __construct(CourseService $courseService)
+    public function __construct(CourseService $courseService, MediaService $mediaService)
     {
         $this->courseService = $courseService;
+        $this->mediaService = $mediaService;
     }
+
+
 
     public function index(Request $request)
     {
@@ -103,6 +108,20 @@ class CourseController extends Controller
             return response_error(null, 404, $e->getMessage());
         } catch (\Exception $e) {
             return response_error(null, 500, $e->getMessage());
+        }
+    }
+
+    public function destroyMedia($courseId, $mediaId)
+    {
+        try {
+           
+            $this->mediaService->deleteMediaFromCourse($courseId, $mediaId);
+
+            return response_success(null, 200, 'Media deleted successfully from the course.');
+        } catch (ModelNotFoundException $e) {
+            return response_error(null, 404, $e->getMessage());
+        } catch (\Exception $e) {
+            return response_error(null, 400, $e->getMessage());
         }
     }
 }

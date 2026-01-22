@@ -14,8 +14,10 @@ return new class extends Migration
         Schema::create('courses', function (Blueprint $table) {
             $table->id();
             $table->string('title');
-            $table->text('description'); 
-            $table->decimal('price', 8, 2)->default(0); 
+            $table->text('description');
+            $table->decimal('price', 8, 2)->default(0);
+            $table->enum('type', ['online', 'onsite'])->default('online');
+            $table->integer('capacity')->nullable();
             $table->foreignId('instructor_id')->nullable()->constrained('users')->onDelete('set null');
             $table->timestamps();
         });

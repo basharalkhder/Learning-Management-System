@@ -9,6 +9,13 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 class CourseService
 {
+    protected $mediaService;
+
+    public function __construct(MediaService $mediaService)
+    {
+        $this->mediaService = $mediaService;
+    }
+
     public function getCourseById($id)
     {
         try {
@@ -42,13 +49,19 @@ class CourseService
 
                 $query->where('instructor_id', $instructorId);
             }
+            if (!empty($filters['min_price'])) {
+                $query->where('price', '>=', $filters['min_price']);
+            }
+            if (!empty($filters['max_price'])) {
+                $query->where('price', '<=', $filters['max_price']);
+            }
+            if (!empty($filters['type'])) {
+                $query->where('type', $filters['type']);
+            }
 
             $courses = $query->with('instructor')->latest()->paginate(10);
 
 
-            if ($courses->isEmpty() && !empty($filters['instructor_id'])) {
-                throw new \Exception("This instructor currently has no courses assigned.", 404);
-            }
 
             return $courses;
         } catch (\Exception $e) {
@@ -59,7 +72,17 @@ class CourseService
     public function createCourse(array $data)
     {
         try {
-            return Course::create($data);
+            $course = Course::create($data);
+
+            if (!empty($data['images'])) {
+                $this->mediaService->uploadMultipleMedia($course, $data['images'], 'course_images');
+            }
+
+            if (!empty($data['pdfs'])) {
+                $this->mediaService->uploadMultipleMedia($course, $data['pdfs'], 'course_pdfs');
+            }
+
+            return $course->load('media');
         } catch (Exception $e) {
             throw new Exception("Error while creating course: " . $e->getMessage());
         }
@@ -67,9 +90,21 @@ class CourseService
 
     public function updateCourse(array $data, $id)
     {
+
         $course = $this->getCourseById($id);
         $course->update($data);
-        return $course;
+
+        
+        if (isset($data['images']) && is_array($data['images'])) {
+            $this->mediaService->uploadMultipleMedia($course, $data['images'], 'course_images');
+        }
+
+        
+        if (isset($data['pdfs']) && is_array($data['pdfs'])) {
+            $this->mediaService->uploadMultipleMedia($course, $data['pdfs'], 'course_pdfs');
+        }
+
+        return $course->load('media');
     }
 
     public function deleteCourse($id)
@@ -99,9 +134,8 @@ class CourseService
             $course->update(['instructor_id' => $instructorId]);
 
             return $course->load('instructor');
-        }
-        catch (Exception $e) {
-           
+        } catch (Exception $e) {
+
             throw new Exception("An error occurred: " . $e->getMessage(), 500);
         }
     }

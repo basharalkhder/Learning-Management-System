@@ -22,10 +22,26 @@ class StoreCourseRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'title'         => 'required|string|min:5|max:255|unique:courses,title',
+            'title'         => 'required|string|min:5|max:255|',
+            'type'     => 'required|in:online,onsite',
+            'capacity' => [
+                'required_if:type,onsite',
+                'prohibited_if:type,online',
+                'nullable',
+                'integer',
+                'min:1'
+            ],
             'description'   => 'required|string|min:20',
             'price'         => 'required|numeric|min:0',
-            
+
+
+            'images' => 'nullable|array',
+            'images.*' => 'image|mimes:jpeg,png,jpg|max:2048',
+
+
+            'pdfs' => 'nullable|array',
+            'pdfs.*' => 'file|mimes:pdf|max:10240',
+
         ];
     }
 
@@ -35,11 +51,33 @@ class StoreCourseRequest extends FormRequest
             'title.unique' => 'This course title already exists. Please choose a different name.',
             'title.required'         => 'The course title is mandatory.',
             'title.min'              => 'The title must be at least 5 characters long.',
+
             'description.required'   => 'Please provide a detailed description.',
             'description.min'        => 'Description should be at least 20 characters.',
+
+            'type.required'  => 'Please specify the course type (online or onsite).',
+            'type.in'        => 'The course type must be either online or onsite.',
+
+            'capacity.required_if' => 'The capacity field is required when the course type is onsite.',
+            'capacity.prohibited_if' => 'The capacity field must be empty when the course type is online.',
+            'capacity.integer'     => 'The capacity must be a whole number.',
+            'capacity.min'         => 'The capacity must be at least 1 seat.',
+
             'price.required'         => 'Course price must be specified.',
             'price.numeric'          => 'The price must be a valid number.',
             'price.min'              => 'Price cannot be a negative value.',
+
+            
+            'images.array' => 'Images must be uploaded as a list.',
+            'images.*.image' => 'One or more files in the images field are not valid images.',
+            'images.*.mimes' => 'Only JPEG, PNG, and JPG formats are allowed for images.',
+            'images.*.max' => 'Each image must not exceed 2MB.',
+
+            
+            'pdfs.array' => 'PDFs must be uploaded as a list.',
+            'pdfs.*.file' => 'One or more items in the PDFs field are not valid files.',
+            'pdfs.*.mimes' => 'The files must be in PDF format only.',
+            'pdfs.*.max' => 'Each PDF file must not exceed 10MB.',
 
         ];
     }
