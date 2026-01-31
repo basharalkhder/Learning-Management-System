@@ -6,7 +6,7 @@ use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
-class CheckAdminRole
+class CheckInstructorOrAdminRole
 {
     /**
      * Handle an incoming request.
@@ -15,11 +15,14 @@ class CheckAdminRole
      */
     public function handle(Request $request, Closure $next): Response
     {
+        if (auth()->check()) {
+            $user = auth()->user();
 
-        if (auth()->check() && auth()->user()->hasRole('Admin')) {
-            return $next($request);
+            if ($user->hasRole('Instructor') || $user->hasRole('Admin')) {
+                return $next($request);
+            }
         }
 
-        return response_error(null, 403, 'Access Denied: Only Admins can perform this action.');
+        return response_error(null, 403, 'Access Denied.');
     }
 }

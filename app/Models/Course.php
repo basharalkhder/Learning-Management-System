@@ -41,6 +41,18 @@ class Course extends Model implements HasMedia
         return $this->belongsTo(User::class, 'instructor_id');
     }
 
+    public function lessons()
+    {
+        return $this->hasMany(Lesson::class)->orderBy('order', 'asc');
+    }
+
+    public function students()
+    {
+        return $this->belongsToMany(User::class, 'course_user')
+            ->withPivot('status', 'enrolled_at')
+            ->withTimestamps();
+    }
+
 
     protected static function booted()
     {
