@@ -53,6 +53,11 @@ class Course extends Model implements HasMedia
             ->withTimestamps();
     }
 
+    public function reviews()
+    {
+        return $this->hasMany(Review::class);
+    }
+
 
     protected static function booted()
     {

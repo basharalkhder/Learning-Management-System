@@ -5,7 +5,9 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\RoleManagementController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CourseController;
+use App\Http\Controllers\LatestNewsController;
 use App\Http\Controllers\LessonController;
+use App\Http\Controllers\ReviewController;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -20,7 +22,12 @@ Route::middleware('auth:sanctum')->group(function () {
 });
 
 
+
+Route::get('latest-news', [LatestNewsController::class, 'index']);
+Route::get('latest-news/{latest_news}', [LatestNewsController::class, 'show']);
+
 Route::middleware(['auth:sanctum', 'admin.check'])->group(function () {
+
 
     Route::post('/roles/assign', [RoleManagementController::class, 'assign']);
     Route::post('/roles/revoke', [RoleManagementController::class, 'revoke']);
@@ -31,6 +38,8 @@ Route::middleware(['auth:sanctum', 'admin.check'])->group(function () {
     Route::post('courses/assign-instructor', [CourseController::class, 'assign']);
 
     Route::delete('/courses/{courseId}/media/{mediaId}', [CourseController::class, 'destroyMedia']);
+
+    Route::apiResource('latest-news', LatestNewsController::class)->except(['index', 'show']);
 });
 
 // Test
@@ -44,5 +53,8 @@ Route::middleware(['auth:sanctum', 'instructorOrAdmin.check'])->group(function (
 });
 
 Route::middleware(['auth:sanctum'])->group(function () {
+
     Route::get('lessons/{lesson}', [LessonController::class, 'show']);
+
+    Route::apiResource('reviews', ReviewController::class);
 });
